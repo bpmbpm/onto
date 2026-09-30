@@ -1,6 +1,6 @@
 ## ontology1 for example
 
-#персона
+# персона
 1234
 
 ## 2
