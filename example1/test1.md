@@ -1,7 +1,7 @@
 ## ver1
 - https://github.com/bpmbpm/mdld-test/blob/main/ver2/doc/easy/alice3d.md
 
-
+```turtle
 @prefix ex:   <https://github.com/bpmbpm/onto/blob/main/example1/test1.md#> .
 @prefix onto: <https://github.com/bpmbpm/onto/blob/main/ver1/ontology1.md#> .
 @prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
@@ -45,3 +45,4 @@ ex:bobHobbyBike rdf:type onto:Hobby ;
 
 ex:bobHobbyCode rdf:type onto:Hobby ;
     onto:name "Программирование" .
+```
