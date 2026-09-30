@@ -67,3 +67,4 @@ Percent-encoded: `#%D0%B0%D0%BB%D0%B8%D1%81%D0%B0`.
 
 - GitHub: создание якорей — https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#section-links  
 - github-slugger (npm) — https://www.npmjs.com/package/github-slugger  
+- https://github.com/bpmbpm/mdld-test/blob/main/ver2/doc/easy/alice3d2.md#-5-anchormd
