@@ -6,7 +6,7 @@
 @prefix onto: <https://github.com/bpmbpm/onto/blob/main/ver1/ontology1.md#> .
 @prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 
-## alice
+# alice
 
 ex:alice rdf:type onto:Person ;
     onto:name "Алиса" ;
@@ -26,7 +26,7 @@ ex:aliceHobbyPhoto rdf:type onto:Hobby ;
 ex:aliceHobbyChess rdf:type onto:Hobby ;
     onto:name "Шахматы" .
 
-## bob
+# bob
 
 ex:bob rdf:type onto:Person ;
     onto:name "Боб" ;
