@@ -261,3 +261,67 @@ SELECT ?label WHERE {
   FILTER(lang(?label) = "ru")
 }
 ```
+
+## 1.2
+
+В rdfs есть аналог owl:equivalentClass?
+
+В RDFS нет прямого аналога `owl:equivalentClass`, так как RDFS — это более базовая модель, которая не поддерживает такие сложные отношения между классами. Однако, есть несколько способов выразить эквивалентность классов в RDFS:
+
+1. **Использование rdfs:subClassOf и rdfs:superClassOf:**
+   Если два класса эквивалентны, вы можете утверждать, что каждый из них является подклассом другого.
+
+   ```turtle
+   @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+   @prefix onto: <http://example.org/onto#> .
+
+   onto:Person rdfs:subClassOf onto:SchemaPerson .
+   onto:SchemaPerson rdfs:subClassOf onto:Person .
+   ```
+
+   Этот подход показывает, что оба класса содержат одни и те же экземпляры.
+
+2. **Использование rdfs:label и rdfs:comment:**
+   Хотя это не эквивалентность классов, вы можете использовать метки для обозначения того, что два класса имеют одинаковое значение.
+
+   ```turtle
+   onto:Person rdfs:label "Person"@en .
+   onto:Person rdfs:label "Персона"@ru .
+   
+   onto:SchemaPerson rdfs:label "Person"@en .
+   onto:SchemaPerson rdfs:label "Персона"@ru .
+   ```
+
+3. **Использование rdfs:seeAlso:**
+   Это свойство можно использовать для связи двух классов, которые считаются эквивалентными.
+
+   ```turtle
+   onto:Person rdfs:seeAlso <http://schema.org/Person> .
+   <http://schema.org/Person> rdfs:seeAlso onto:Person .
+   ```
+
+4. **Использование rdf:type для связи с другим пространством имён:**
+   Если вы хотите явно указать, что ваш класс эквивалентен классу из другого пространства имён, вы можете использовать `rdf:type`.
+
+   ```turtle
+   onto:Person rdf:type <http://schema.org/Person> .
+   ```
+
+### Пример использования SPARQL для проверки эквивалентности
+
+Если вы хотите проверить, что два класса считаются эквивалентными в вашей онтологии, вы можете использовать SPARQL:
+
+```sparql
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX onto: <http://example.org/onto#>
+
+SELECT ?class1 ?class2 WHERE {
+  ?class1 rdfs:subClassOf ?class2 .
+  ?class2 rdfs:subClassOf ?class1 .
+  FILTER (?class1 = onto:Person && ?class2 = <http://schema.org/Person>)
+}
+```
+
+Этот запрос найдёт все пары классов, которые считаются эквивалентными через отношение `rdfs:subClassOf`.
+
+Таким образом, хотя прямого аналога `owl:equivalentClass` в RDFS нет, вы можете использовать различные методы для выражения эквивалентности классов в вашей онтологии.
