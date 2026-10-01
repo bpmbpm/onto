@@ -6,3 +6,5 @@
 OWL «Manchester syntax document» «Functional syntax document»
 - https://www.w3.org/2007/OWL/draft/ED-owl2-manchester-syntax-20081128/
 - https://www.w3.org/TR/owl2-manchester-syntax/
+
+[Как онтология помогает представить структуру данных и семантику приложения](https://habr.com/ru/companies/vktech/articles/948492/)
