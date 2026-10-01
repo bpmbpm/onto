@@ -1,5 +1,5 @@
 
-# RDF Vocabulary (документация)  
+# RDF Vocabulary (documentation)  
 
 ## prefix 
 ### `https://github.com/bpmbpm/onto/blob/main/ver1/rdf2.md#`  
