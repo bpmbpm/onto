@@ -325,3 +325,175 @@ SELECT ?class1 ?class2 WHERE {
 Этот запрос найдёт все пары классов, которые считаются эквивалентными через отношение `rdfs:subClassOf`.
 
 Таким образом, хотя прямого аналога `owl:equivalentClass` в RDFS нет, вы можете использовать различные методы для выражения эквивалентности классов в вашей онтологии.
+
+## 1.3
+
+Как записать через rdfs  
+onto:Person owl:equivalentClass <http://schema.org/Person> .
+
+и что предикат label в rdfs2 (собственная онтология) эквивалент label в rdfs?
+
+## Классы: эквивалентность через RDFS
+
+В RDFS нет `owl:equivalentClass`, но эквивалентность двух классов выражается **взаимным `rdfs:subClassOf`** — каждый класс объявляется подклассом другого. Это даёт тот же логический результат: множества экземпляров совпадают.
+
+### Исходная OWL-запись
+
+```turtle
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix onto: <http://example.org/onto#> .
+
+onto:Person owl:equivalentClass <http://schema.org/Person> .
+```
+
+### Эквивалент в RDFS
+
+```turtle
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix onto: <http://example.org/onto#> .
+
+onto:Person                rdfs:subClassOf <http://schema.org/Person> .
+<http://schema.org/Person> rdfs:subClassOf onto:Person .
+```
+
+**Почему это работает.** В RDFS-семантике правило вывода для `rdfs:subClassOf` гласит: если `A rdfs:subClassOf B` и `x rdf:type A`, то `x rdf:type B`. Когда обе стрелки направлены в обе стороны, экземпляры одного класса автоматически становятся экземплярами другого — ровно то, что делает `owl:equivalentClass`.
+
+---
+
+## Свойства: эквивалентность через RDFS
+
+Аналогично, в RDFS нет `owl:equivalentProperty`, но есть `rdfs:subPropertyOf`. Взаимное подчинение даёт эквивалентность.
+
+### Исходная OWL-запись
+
+```turtle
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdfs2: <http://example.org/my-ns#> .
+
+rdfs2:label owl:equivalentProperty rdfs:label .
+```
+
+### Эквивалент в RDFS
+
+```turtle
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs2: <http://example.org/my-ns#> .
+
+# Объявляем rdfs2:label как свойство
+rdfs2:label rdf:type rdf:Property ;
+    rdfs:label "label" ;
+    rdfs:comment "Собственное свойство метки, эквивалентное rdfs:label." .
+
+# Взаимное подчинение = эквивалентность
+rdfs2:label rdfs:subPropertyOf rdfs:label .
+rdfs:label  rdfs:subPropertyOf rdfs2:label .
+```
+
+**Почему это работает.** Правило RDFS для `rdfs:subPropertyOf`: если `P rdfs:subPropertyOf Q` и `x P y`, то `x Q y`. Двустороннее подчинение гарантирует, что любое значение `rdfs2:label` становится значением `rdfs:label`, и наоборот.
+
+---
+
+## Полный пример онтологии на чистом RDFS
+
+Объединим оба случая — классы и свойства — в одной онтологии без единого OWL-конструктора:
+
+```turtle
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdfs2:  <http://example.org/my-ns#> .
+@prefix onto:   <http://example.org/onto#> .
+
+# --- Пространство имён rdfs2 ---
+
+rdfs2:label rdf:type rdf:Property ;
+    rdfs:label "label" ;
+    rdfs:comment "Метка, эквивалентная rdfs:label." .
+
+rdfs2:comment rdf:type rdf:Property ;
+    rdfs:label "comment" ;
+    rdfs:comment "Комментарий, эквивалентный rdfs:comment." .
+
+# Эквивалентность свойств через взаимный subPropertyOf
+rdfs2:label   rdfs:subPropertyOf rdfs:label .
+rdfs:label    rdfs:subPropertyOf rdfs2:label .
+
+rdfs2:comment rdfs:subPropertyOf rdfs:comment .
+rdfs:comment  rdfs:subPropertyOf rdfs2:comment .
+
+# --- Класс Person ---
+
+onto:Person rdf:type rdfs:Class ;
+    rdfs2:label   "Person"@en ;
+    rdfs2:label   "Персона"@ru ;
+    rdfs2:comment "Человек или вымышленный персонаж."@ru .
+
+# Эквивалентность классов через взаимный subClassOf
+onto:Person                rdfs:subClassOf <http://schema.org/Person> .
+<http://schema.org/Person> rdfs:subClassOf onto:Person .
+
+# --- Экземпляр ---
+
+onto:Alice rdf:type onto:Person ;
+    rdfs2:label "Алиса"@ru .
+```
+
+---
+
+## Что автоматически выведет RDFS-рассуждитель
+
+Из этой онтологии RDFS-движок (например, встроенный в Apache Jena `RDFSRuleReasoner`) выведет следующие неявные факты:
+
+| Правило | Вывод |
+|---|---|
+| `rdfs2:label` → `rdfs:label` (через subPropertyOf) | `onto:Person rdfs:label "Person"@en`, `"Персона"@ru` |
+| `rdfs:label` → `rdfs2:label` (обратное подчинение) | и наоборот, любое `rdfs:label` станет `rdfs2:label` |
+| `onto:Person` → `schema:Person` (через subClassOf) | `onto:Alice rdf:type <http://schema.org/Person>` |
+| `schema:Person` → `onto:Person` (обратное подчинение) | любой экземпляр schema:Person станет экземпляром onto:Person |
+| `rdfs2:comment` → `rdfs:comment` | `onto:Person rdfs:comment "Человек или вымышленный персонаж."@ru` |
+
+### Проверка через SPARQL
+
+```sparql
+PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX onto:  <http://example.org/onto#>
+
+# Найдёт "Персона"@ru, хотя записано через rdfs2:label
+SELECT ?label WHERE {
+  onto:Person rdfs:label ?label .
+  FILTER(lang(?label) = "ru")
+}
+```
+
+```sparql
+PREFIX schema: <http://schema.org/>
+PREFIX onto:   <http://example.org/onto#>
+
+# Найдёт onto:Alice как экземпляр schema:Person
+SELECT ?person WHERE {
+  ?person a schema:Person .
+}
+```
+
+Оба запроса вернут результаты только при включённом RDFS-reasoning. Без него поиск ведётся строго по явно записанным триплетам.
+
+---
+
+## Сводка: OWL → RDFS
+
+| OWL-конструкция | RDFS-эквивалент | Логика |
+|---|---|---|
+| `A owl:equivalentClass B` | `A rdfs:subClassOf B` + `B rdfs:subClassOf A` | Взаимное включение экземпляров |
+| `P owl:equivalentProperty Q` | `P rdfs:subPropertyOf Q` + `Q rdfs:subPropertyOf P` | Взаимное наследование значений |
+| `A owl:Class` | `A rdfs:Class` | OWL-класс — это подкласс RDFS-класса, но для базовой иерархии `rdfs:Class` достаточно |
+
+### Ограничения RDFS по сравнению с OWL
+
+- Нет `owl:disjointWith` (нельзя сказать, что классы не пересекаются)
+- Нет `owl:Restriction` (нельзя задать кардинальность, `allValuesFrom`, `someValuesFrom`)
+- Нет `owl:unionOf` / `owl:intersectionOf` / `owl:complementOf` (нельзя строить классы из других классов логическими операциями)
+- Нет `owl:InverseObjectProperty` (нельзя объявить обратное свойство)
+- Нет `owl:TransitiveProperty`, `owl:SymmetricProperty`, `owl:FunctionalProperty` (хотя `rdfs:subPropertyOf` частично компенсирует)
+
+Если онтология использует только иерархию классов, метки, комментарии и эквивалентности — чистого RDFS достаточно. Если нужны ограничения, кардинальности, непересекающиеся классы — придётся переходить на OWL.
