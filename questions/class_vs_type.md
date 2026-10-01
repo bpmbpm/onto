@@ -292,6 +292,9 @@ ex:CompanyA ex:type ex:Class ;
 
 ## 3
 
+предикат - это глагол, и должен начинаться со строчной буквы, но  
+"Свойство	ex:Property	Связь, которую можно использовать как предикат в тройках"
+
 ## бутстрап 
 
 - https://www.ixbt.com/live/accessories/dlya-chego-nuzhna-petelka-na-obuvi-szadi.html
