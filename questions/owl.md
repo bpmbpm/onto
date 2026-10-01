@@ -1,3 +1,4 @@
 ## owl
 - [Семантический веб. Язык OWL](https://www.youtube.com/watch?v=j37UiHbEXtA) Учебный курс «Семантический веб» создан при поддержке НБО «Благотворительный фонд В. Потанина». Читает доцент МИФИ Виктор Тельнов.
 - https://zajtcev.org/docs/w3c/ru/REC-owl2-overview-20091027.html
+  - ![ris](https://www.w3.org/TR/2009/REC-owl2-overview-20091027/OWL2-structure2-800.png)
