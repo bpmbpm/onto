@@ -1,6 +1,1128 @@
 ## old
-
 ### 1
+
+Да, `owl:Class`, `owl:Thing` и предикаты находятся **не на одном уровне**. Для точности нужно разделить:
+
+1. RDF-уровень: ресурсы, RDF-термы и тройки;
+2. OWL-синтаксический уровень: сущности, выражения и аксиомы;
+3. OWL-семантический уровень: области интерпретации и функции интерпретации;
+4. метамодельный уровень спецификации: UML-классы, описывающие структуру самого OWL.
+
+Ваше `xxx` лучше называть **семантической областью**, **доменом интерпретации**, **множеством интерпретации** или **semantic domain**. В OWL Direct Semantics используются два ключевых домена:
+
+- `ΔI` — object domain, область объектов;
+- `ΔD` — data domain, область значений данных.
+
+## 1. Сначала важное исправление
+
+Предположение:
+
+> корневые множества — `owl:Class`, `owl:Thing`, предикаты и множество ресурсов
+
+смешивает два разных типа описания.
+
+`owl:Class` и `owl:Thing` — это **IRI, обозначающие специальные классы OWL**, а не математические корневые множества Direct Semantics.
+
+Предикаты — это RDF-термы и в семантике OWL 2 обычно интерпретируются как **бинарные отношения**, а не как самостоятельная «область предикатов».
+
+Ресурсы RDF — это более общий термин RDF-модели. В Direct Semantics OWL 2 используются не «все RDF-ресурсы», а отдельные элементы словаря:
+
+```text
+classes
+object properties
+data properties
+individuals
+datatypes
+literals
+facets
+```
+
+Спецификация Direct Semantics явно вводит vocabulary как кортеж этих множеств. [w3](https://www.w3.org/TR/owl2-direct-semantics/)
+
+## 2. Самый верхний уровень: RDF
+
+Наиболее общий уровень — RDF.
+
+### RDF-термы
+
+В RDF 1.1 есть три вида RDF-термов:
+
+```text
+RDF terms = IRIs ∪ blank nodes ∪ literals
+```
+
+То есть:
+
+| RDF-терм | Пример | Роль |
+|---|---|---|
+| IRI | `:Book`, `rdf:type` | именованный ресурс |
+| blank node | `_:x` | анонимный ресурс |
+| literal | `"Book"@en`, `42` | значение данных |
+
+RDF-тройка имеет форму:
+
+```text
+(subject, predicate, object)
+```
+
+Например:
+
+```turtle
+:book123 rdf:type :Book .
+```
+
+В RDF:
+
+- `:book123` — subject;
+- `rdf:type` — predicate;
+- `:Book` — object.
+
+Предикат также является IRI и может встречаться как узел RDF-графа. Поэтому RDF не образует строгой дизъюнкции «предикаты отдельно, ресурсы отдельно»: IRI `rdf:type` является и предикатом, и RDF-термом. [w3](https://www.w3.org/TR/rdf11-concepts/)
+
+### Ресурс
+
+В RDF спецификации **resource** — это то, что обозначается IRI или литералом; в более широком смысле ресурсами называют сущности дискурса:
+
+```text
+Resource ≈ то, что может быть обозначено и описано
+```
+
+Но важно не отождествлять автоматически:
+
+```text
+RDF resource ≠ OWL entity
+```
+
+`OWL entity` — более узкий термин OWL 2.
+
+## 3. Верхний уровень OWL 2: три синтаксические категории
+
+OWL 2 структурно разделяет онтологию на три основные категории:
+
+```text
+OWL ontology
+├── Entities
+├── Expressions
+└── Axioms
+```
+
+Это нормативная структура OWL 2. [w3](https://www.w3.org/TR/owl2-syntax/)
+
+### 3.1 Сущности (`entities`)
+
+Сущности — именованные примитивные элементы, идентифицируемые IRI:
+
+```text
+Entity
+├── Class
+├── ObjectProperty
+├── DataProperty
+├── AnnotationProperty
+├── Individual
+└── Datatype
+```
+
+Пример:
+
+```turtle
+:Book      # Class
+:hasAuthor # ObjectProperty
+:pageCount # DataProperty
+:book123   # NamedIndividual
+:xsd:integer # Datatype
+```
+
+В OWL 2 сущность — это не просто любой RDF-ресурс. Это ресурс, которому в структурной модели OWL присвоена определённая роль.
+
+### 3.2 Выражения (`expressions`)
+
+Выражения строят сложные понятия из сущностей:
+
+```text
+Expression
+├── ClassExpression
+├── ObjectPropertyExpression
+├── DataPropertyExpression
+├── DataRange
+└── DatatypeRestriction
+```
+
+Пример класса-выражения:
+
+```owl
+ObjectIntersectionOf( :Book :PrintedPublication )
+```
+
+Он обозначает пересечение двух классов:
+
+\[
+(:Book \sqcap :PrintedPublication)^C
+=
+:Book^C \cap :PrintedPublication^C
+\]
+
+Класс-выражение может быть анонимным и не иметь собственного IRI.
+
+### 3.3 Аксиомы (`axioms`)
+
+Аксиомы — утверждения онтологии:
+
+```text
+Axiom
+├── Declaration
+├── ClassAxiom
+├── ObjectPropertyAxiom
+├── DataPropertyAxiom
+├── DatatypeDefinition
+├── Key
+└── Assertion
+```
+
+Примеры:
+
+```owl
+Declaration( Class( :Book ) )
+
+SubClassOf( :Book :Publication )
+
+ClassAssertion( :Book :book123 )
+
+ObjectPropertyAssertion( :hasAuthor :book123 :Tolstoy )
+```
+
+Важное различие:
+
+```text
+:Book             — entity
+ObjectIntersectionOf(...) — expression
+SubClassOf(...)   — axiom
+```
+
+## 4. OWL Direct Semantics: корневые множества
+
+Теперь перейдём к математической семантике.
+
+OWL 2 Direct Semantics задаёт интерпретацию как кортеж:
+
+\[
+I =
+\langle
+\Delta_I,\Delta_D,
+\cdot^C,\cdot^{OP},\cdot^{DP},
+\cdot^I,\cdot^{DT},
+\cdot^{LT},\cdot^{FA},
+NAMED
+\rangle
+\]
+
+Это не онтология и не RDF-граф, а математическая модель значения онтологии. [w3](https://www.w3.org/TR/owl2-direct-semantics/)
+
+### 4.1 Область объектов
+
+\[
+\Delta_I
+\]
+
+называется **object domain** — область объектов.
+
+Она должна быть непустой:
+
+\[
+\Delta_I \neq \varnothing
+\]
+
+Это множество, элементы которого интерпретируются как объекты предметной области:
+
+```text
+people
+books
+documents
+organizations
+numbers-as-objects
+abstract entities
+```
+
+Один элемент может быть интерпретацией конкретного индивида:
+
+\[
+(:book123)^I \in \Delta_I
+\]
+
+### 4.2 Область значений данных
+
+\[
+\Delta_D
+\]
+
+называется **data domain** — область данных.
+
+Она также непуста и не пересекается с областью объектов:
+
+\[
+\Delta_D \neq \varnothing
+\]
+
+\[
+\Delta_I \cap \Delta_D = \varnothing
+\]
+
+Например:
+
+```text
+строки
+целые числа
+даты
+булевы значения
+```
+
+В Direct Semantics это принципиальное разделение:
+
+```text
+object domain ≠ data domain
+```
+
+Именно поэтому OWL разделяет:
+
+```text
+ObjectProperty
+DataProperty
+```
+
+## 5. Как интерпретируются классы и свойства
+
+### 5.1 Классы
+
+Функция интерпретации классов:
+
+\[
+\cdot^C
+\]
+
+каждому классу `C` сопоставляет подмножество области объектов:
+
+\[
+C^C \subseteq \Delta_I
+\]
+
+Например:
+
+\[
+:Book^C \subseteq \Delta_I
+\]
+
+То есть класс `:Book` — не отдельный объект в этой формуле, а множество объектов, являющихся книгами.
+
+Для универсального класса:
+
+\[
+owl:Thing^C = \Delta_I
+\]
+
+Для пустого класса:
+
+\[
+owl:Nothing^C = \varnothing
+\]
+
+Следовательно:
+
+```text
+owl:Thing — не всё множество RDF-ресурсов;
+owl:Thing — всё множество объектов object domain.
+```
+
+### 5.2 Object properties
+
+Функция интерпретации объектных свойств:
+
+\[
+\cdot^{OP}
+\]
+
+каждому object property сопоставляет бинарное отношение:
+
+\[
+OP^{OP} \subseteq \Delta_I \times \Delta_I
+\]
+
+Например:
+
+\[
+:hasAuthor^{OP}
+\subseteq
+\Delta_I \times \Delta_I
+\]
+
+Утверждение:
+
+```turtle
+:book123 :hasAuthor :Tolstoy .
+```
+
+означает:
+
+\[
+\bigl(
+(:book123)^I,
+(:Tolstoy)^I
+\bigr)
+\in
+(:hasAuthor)^{OP}
+\]
+
+То есть `:hasAuthor` — не «множество предикатов», а конкретное бинарное отношение на объектах.
+
+### 5.3 Data properties
+
+Функция интерпретации data properties:
+
+\[
+\cdot^{DP}
+\]
+
+сопоставляет свойству отношение:
+
+\[
+DP^{DP} \subseteq \Delta_I \times \Delta_D
+\]
+
+Например:
+
+```turtle
+:book123 :pageCount 1225 .
+```
+
+означает:
+
+\[
+\bigl(
+(:book123)^I,
+1225^{LT}
+\bigr)
+\in
+(:pageCount)^{DP}
+\]
+
+Здесь первый аргумент — объект из `ΔI`, второй — значение из `ΔD`.
+
+## 6. Индивиды и литералы
+
+### Индивиды
+
+Функция:
+
+\[
+\cdot^I
+\]
+
+каждому OWL individual сопоставляет один объект области:
+
+\[
+a^I \in \Delta_I
+\]
+
+Например:
+
+\[
+(:book123)^I \in \Delta_I
+\]
+
+### Литералы
+
+Функция:
+
+\[
+\cdot^{LT}
+\]
+
+сопоставляет литералу значение данных:
+
+\[
+("1225"^^xsd:integer)^{LT}
+\in \Delta_D
+\]
+
+Таким образом:
+
+```text
+:book123 — OWL individual
+:Book — OWL class
+"1225"^^xsd:integer — literal/data value
+```
+
+## 7. Прямая семантика одного примера
+
+Возьмём:
+
+```turtle
+:Book rdf:type owl:Class .
+
+:book123 rdf:type :Book .
+
+:book123 :hasAuthor :Tolstoy .
+
+:book123 :pageCount 1225 .
+```
+
+В Direct Semantics это означает:
+
+### Объявление класса
+
+```turtle
+:Book rdf:type owl:Class .
+```
+
+В структурном OWL:
+
+```owl
+Declaration( Class( :Book ) )
+```
+
+На семантическом уровне `:Book` получает интерпретацию как множество:
+
+\[
+:Book^C \subseteq \Delta_I
+\]
+
+### Членство индивида в классе
+
+```turtle
+:book123 rdf:type :Book .
+```
+
+В функциональном синтаксисе:
+
+```owl
+ClassAssertion( :Book :book123 )
+```
+
+Семантическое условие:
+
+\[
+(:book123)^I \in :Book^C
+\]
+
+### Объектное свойство
+
+```turtle
+:book123 :hasAuthor :Tolstoy .
+```
+
+Условие:
+
+\[
+\bigl(
+(:book123)^I,
+(:Tolstoy)^I
+\bigr)
+\in :hasAuthor^{OP}
+\]
+
+### Свойство данных
+
+```turtle
+:book123 :pageCount 1225 .
+```
+
+Условие:
+
+\[
+\bigl(
+(:book123)^I,
+1225^{LT}
+\bigr)
+\in :pageCount^{DP}
+\]
+
+## 8. Что такое `owl:Class` в этой системе
+
+Здесь необходимо особенно аккуратно разделить уровни.
+
+В RDF-графе:
+
+```turtle
+:Book rdf:type owl:Class .
+```
+
+можно прочитать как:
+
+```text
+ресурс :Book имеет RDF-тип owl:Class
+```
+
+В OWL RDF Mapping это является представлением декларации:
+
+```owl
+Declaration( Class( :Book ) )
+```
+
+Но в Direct Semantics OWL 2 класс `:Book` интерпретируется не как элемент отдельного множества «всех классов», а как подмножество:
+
+\[
+:Book^C \subseteq \Delta_I
+\]
+
+То есть `owl:Class` в RDF-ориентированном представлении и `Class` в структурном синтаксисе — не одно и то же, что `:Book^C` в математической модели.
+
+Условная цепочка:
+
+```text
+RDF:
+:Book rdf:type owl:Class
+
+OWL structural:
+Declaration( Class( :Book ) )
+
+Direct Semantics:
+:Book^C ⊆ ΔI
+```
+
+Это три уровня представления одного намерения, а не три последовательных класса, которые обязаны образовывать цепочку экземпляров.
+
+## 9. `owl:Thing` и `owl:Class` не являются двумя корневыми множествами одного типа
+
+Семантически:
+
+\[
+owl:Thing^C = \Delta_I
+\]
+
+Это универсальный класс объектов.
+
+А `owl:Class` в OWL RDF vocabulary служит для RDF-представления OWL-классов. Его не следует включать в ту же схему как:
+
+```text
+owl:Thing
+owl:Class
+predicate set
+resource set
+```
+
+Корректнее:
+
+```text
+OWL vocabulary symbols:
+├── owl:Thing
+├── owl:Nothing
+├── owl:Class
+├── owl:topObjectProperty
+├── owl:bottomObjectProperty
+└── ...
+
+Direct semantic domains:
+├── ΔI — object domain
+└── ΔD — data domain
+
+Interpretations:
+├── classes → subsets of ΔI
+├── object properties → subsets of ΔI × ΔI
+├── data properties → subsets of ΔI × ΔD
+├── individuals → elements of ΔI
+└── datatypes → subsets of ΔD
+```
+
+## 10. Где находятся предикаты
+
+В RDF все предикаты — IRI:
+
+```turtle
+rdf:type
+rdfs:subClassOf
+:hasAuthor
+```
+
+В OWL они распределяются по ролям.
+
+### В RDF
+
+```text
+predicate IRI
+```
+
+Это третий компонент RDF-тройки.
+
+### В OWL
+
+```text
+ObjectProperty
+DataProperty
+AnnotationProperty
+```
+
+### В Direct Semantics
+
+| OWL-роль | Семантический объект |
+|---|---|
+| ObjectProperty | отношение `⊆ ΔI × ΔI` |
+| DataProperty | отношение `⊆ ΔI × ΔD` |
+| AnnotationProperty | не входит в логическую Direct Semantics |
+| `rdf:type` в RDF Mapping | отображает различные OWL-конструкции, включая ClassAssertion и Declaration |
+
+Последний пункт важен: `rdf:type` не является в Direct Semantics особым универсальным OWL-предикатом с одной-единственной интерпретацией. В RDF Mapping одна и та же RDF-конструкция может участвовать в отображении разных аксиом OWL в зависимости от объекта и контекста.
+
+Например:
+
+```turtle
+:book123 rdf:type :Book .
+```
+
+отображает:
+
+```owl
+ClassAssertion( :Book :book123 )
+```
+
+а:
+
+```turtle
+:Book rdf:type owl:Class .
+```
+
+отображает:
+
+```owl
+Declaration( Class( :Book ) )
+```
+
+Поэтому в Direct Semantics лучше анализировать не саму строку `rdf:type`, а OWL-аксиому, в которую она преобразуется.
+
+## 11. Две семантики OWL
+
+OWL 2 допускает два нормативных семантических режима:
+
+```text
+OWL 2
+├── Direct Semantics
+└── RDF-Based Semantics
+```
+
+### 11.1 Direct Semantics
+
+Direct Semantics работает со структурой OWL:
+
+```text
+classes
+properties
+individuals
+class expressions
+axioms
+```
+
+Её модель напрямую основана на:
+
+```text
+ΔI
+ΔD
+class interpretation
+property interpretations
+individual interpretation
+datatype interpretation
+```
+
+Она тесно связана с Description Logic `SROIQ`. Для OWL 2 DL именно эта семантика позволяет использовать классические DL reasoners. [w3](https://www.w3.org/TR/owl2-direct-semantics/)
+
+### 11.2 RDF-Based Semantics
+
+RDF-Based Semantics работает с RDF-графом и RDF-термами:
+
+```text
+IRIs
+blank nodes
+literals
+triples
+```
+
+В этой семантике RDF-ресурсы могут интерпретироваться более свободно, включая ситуации, в которых один и тот же ресурс используется как класс, индивид или свойство.
+
+Она естественнее для общего RDF-графа и метамоделирования, но не совпадает во всех случаях с Direct Semantics OWL 2 DL.
+
+Схематично:
+
+```text
+RDF graph
+   │
+   ├── RDF semantics
+   ├── RDFS semantics
+   ├── OWL 2 RDF-Based Semantics
+   └── RDF mapping → OWL structural ontology → Direct Semantics
+```
+
+Спецификация OWL 2 Structural Syntax прямо указывает, что OWL 2-онтологии могут рассматриваться либо под RDF-Based Semantics, либо под Direct Semantics; для OWL 2 DL Direct Semantics связана с вычислимыми методами Description Logic. [w3](https://www.w3.org/TR/owl2-syntax/)
+
+## 12. Общая иерархия спецификаций
+
+Здесь полезно различать **слои стандартов**, а не пытаться расположить их в одну вертикальную иерархию.
+
+```text
+Web / Semantic Web
+│
+├── IRI / URI architecture
+│
+├── RDF
+│   ├── RDF abstract syntax
+│   │   ├── RDF terms
+│   │   │   ├── IRIs
+│   │   │   ├── blank nodes
+│   │   │   └── literals
+│   │   └── triples / graphs / datasets
+│   │
+│   ├── RDF Semantics
+│   │
+│   ├── RDF Schema (RDFS)
+│   │   └── rdfs:Class, rdfs:subClassOf, rdfs:domain, rdfs:range
+│   │
+│   └── RDF serialization syntaxes
+│       ├── Turtle
+│       ├── RDF/XML
+│       ├── JSON-LD
+│       └── N-Triples
+│
+├── OWL 2
+│   ├── Structural Specification
+│   │   ├── entities
+│   │   ├── expressions
+│   │   └── axioms
+│   │
+│   ├── Functional-Style Syntax
+│   │
+│   ├── RDF Mapping
+│   │
+│   ├── Direct Semantics
+│   │   └── SROIQ-related semantics
+│   │
+│   ├── RDF-Based Semantics
+│   │
+│   └── Profiles
+│       ├── OWL 2 EL
+│       ├── OWL 2 QL
+│       └── OWL 2 RL
+│
+├── Rule and constraint layers
+│   ├── RIF
+│   ├── SHACL
+│   └── ShEx
+│
+└── Query and application layers
+    ├── SPARQL
+    ├── ontology engineering tools
+    └── domain vocabularies
+```
+
+## 13. OWL 2 Profiles
+
+Профили OWL 2 — не отдельные семантики, а ограниченные фрагменты языка, ориентированные на разные свойства вычислимости.
+
+```text
+OWL 2 Full / general OWL 2 vocabulary
+└── OWL 2 DL
+    ├── OWL 2 EL
+    ├── OWL 2 QL
+    └── OWL 2 RL
+```
+
+Такую схему надо понимать осторожно:
+
+- `OWL 2 EL`, `OWL 2 QL`, `OWL 2 RL` — профили с ограниченными конструкциями;
+- они не образуют простую вложенную линейную иерархию;
+- каждый профиль оптимизирован под собственный класс reasoning-задач;
+- профильные онтологии могут быть OWL 2 DL-онтологиями при соблюдении соответствующих ограничений.
+
+### OWL 2 EL
+
+Ориентирован на большие терминологические иерархии и полиномиальное reasoning.
+
+### OWL 2 QL
+
+Ориентирован на запросы к большим реляционным данным, особенно через rewriting в SQL.
+
+### OWL 2 RL
+
+Ориентирован на rule-based reasoning и реализацию средствами правил.
+
+Спецификация Profiles определяет эти фрагменты и ограничения; Direct Semantics также применяется к ним как к ограниченным OWL 2-онтологиям. [w3](https://www.w3.org/TR/owl2-direct-semantics/)
+
+## 14. OWL 2 Full и OWL 2 DL
+
+Их тоже нельзя трактовать просто как «два уровня».
+
+### OWL 2 DL
+
+Это синтаксически ограниченный фрагмент OWL 2:
+
+```text
+OWL 2 DL
+```
+
+Он обеспечивает:
+
+- контролируемое смешение ролей;
+- связь с Description Logic;
+- гарантии разрешимости для основных inference-задач;
+- использование Direct Semantics.
+
+### OWL 2 Full
+
+Это более свободное использование OWL поверх RDF/RDFS, допускающее более сильное метамоделирование:
+
+```turtle
+:Book rdf:type owl:Class .
+:Book rdf:type :Concept .
+:Concept rdfs:subClassOf owl:Class .
+```
+
+OWL 2 Full позволяет намного свободнее использовать ресурсы в нескольких ролях. Но за это платят отсутствием тех же общих гарантий вычислимости, что у OWL 2 DL.
+
+## 15. Метамодель спецификации OWL
+
+Есть ещё один уровень, который легко спутать с `owl:Class`.
+
+OWL 2 Structural Specification описывает саму структуру OWL с помощью UML/MOF-подобной метамодели:
+
+```text
+OWL specification metamodel
+├── Ontology
+├── Entity
+│   ├── Class
+│   ├── ObjectProperty
+│   ├── DataProperty
+│   ├── AnnotationProperty
+│   ├── Individual
+│   └── Datatype
+├── ClassExpression
+├── Axiom
+└── Annotation
+```
+
+Здесь `Class`, `Individual`, `Axiom` — **UML-классы метамодели спецификации**, а не обязательно OWL-классы, присутствующие в вашей предметной онтологии.
+
+Спецификация специально предупреждает о различии:
+
+```text
+UML class — элемент метамодели OWL 2
+OWL class  — класс предметной онтологии
+```
+
+Например:
+
+```text
+:Book — экземпляр UML meta-class Class
+:book123 — экземпляр UML meta-class Individual
+ClassAssertion(...) — экземпляр UML meta-class ClassAssertion
+```
+
+Но это описание структуры документа, а не дополнительные RDF-тройки в вашей онтологии. [w3](https://www.w3.org/TR/owl2-syntax/)
+
+## 16. Сводная схема всех уровней
+
+```text
+Уровень A. RDF abstract data model
+│
+├── RDF terms
+│   ├── IRI
+│   ├── blank node
+│   └── literal
+│
+├── RDF graph
+│   └── triple = subject–predicate–object
+│
+└── RDF resource / referent
+```
+
+```text
+Уровень B. OWL 2 structural model
+│
+├── Entities
+│   ├── Class
+│   ├── ObjectProperty
+│   ├── DataProperty
+│   ├── AnnotationProperty
+│   ├── Individual
+│   └── Datatype
+│
+├── Expressions
+│   ├── ClassExpression
+│   ├── PropertyExpression
+│   └── DataRange
+│
+└── Axioms
+    ├── Declaration
+    ├── SubClassOf
+    ├── EquivalentClasses
+    ├── ClassAssertion
+    ├── PropertyAssertion
+    └── ...
+```
+
+```text
+Уровень C. OWL 2 Direct Semantics
+│
+├── ΔI — object domain
+├── ΔD — data domain
+│
+├── C^C ⊆ ΔI
+├── OP^OP ⊆ ΔI × ΔI
+├── DP^DP ⊆ ΔI × ΔD
+├── a^I ∈ ΔI
+├── DT^DT ⊆ ΔD
+└── lt^LT ∈ ΔD
+```
+
+```text
+Уровень D. OWL RDF-Based Semantics
+│
+├── RDF resources
+├── class extensions
+├── property extensions
+├── datatype mappings
+└── RDF entailment rules / semantic conditions
+```
+
+```text
+Уровень E. OWL specification metamodel
+│
+├── UML Class
+├── UML Individual
+├── UML Axiom
+├── UML Ontology
+└── structural associations
+```
+
+## 17. Как лучше формулировать в документации
+
+Чтобы не смешивать уровни, рекомендую использовать такие обозначения:
+
+### В RDF
+
+```text
+RDF term
+RDF resource
+IRI
+RDF predicate
+RDF object
+RDF triple
+```
+
+### В OWL-синтаксисе
+
+```text
+OWL entity
+OWL class
+OWL individual
+object property
+data property
+class expression
+OWL axiom
+```
+
+### В Direct Semantics
+
+```text
+object domain ΔI
+data domain ΔD
+class interpretation
+object-property interpretation
+data-property interpretation
+individual interpretation
+datatype interpretation
+model
+interpretation
+```
+
+### В спецификации языка
+
+```text
+structural element
+UML class of the OWL metamodel
+ontology document
+syntactic category
+```
+
+Не следует говорить:
+
+```text
+множество owl:Thing
+множество owl:Class
+множество предикатов
+```
+
+без уточнения уровня.
+
+Точнее:
+
+```text
+owl:Thing^C = ΔI
+```
+
+— интерпретация класса `owl:Thing` совпадает с областью объектов;
+
+```text
+owl:Nothing^C = ∅
+```
+
+— интерпретация `owl:Nothing` пуста;
+
+```text
+OP^OP ⊆ ΔI × ΔI
+```
+
+— интерпретация object property является бинарным отношением;
+
+```text
+DP^DP ⊆ ΔI × ΔD
+```
+
+— интерпретация data property связывает объект с data value.
+
+## Итоговая формула
+
+Самая компактная корректная схема выглядит так:
+
+\[
+\boxed{
+\begin{aligned}
+&\text{RDF terms} =
+\text{IRIs} \cup \text{blank nodes} \cup \text{literals}
+\\[2mm]
+&\text{OWL entities} =
+\text{classes} \cup \text{properties} \cup \text{individuals} \cup \text{datatypes}
+\\[2mm]
+&\text{Direct domains} =
+\Delta_I \cup \Delta_D
+\\[2mm]
+&C^C \subseteq \Delta_I
+\\
+&OP^{OP} \subseteq \Delta_I \times \Delta_I
+\\
+&DP^{DP} \subseteq \Delta_I \times \Delta_D
+\\
+&a^I \in \Delta_I
+\\
+&DT^{DT} \subseteq \Delta_D
+\end{aligned}
+}
+\]
+
+И главное:
+
+```text
+RDF resource
+    ↓ может обозначать
+OWL entity
+    ↓ получает
+OWL structural role
+    ↓ интерпретируется в
+Direct Semantics:
+ΔI, ΔD, subsets, relations, individuals, data values
+```
+
+`owl:Thing` — специальный OWL-класс, чья интерпретация равна `ΔI`.  
+`owl:Class` — RDF/OWL vocabulary term для обозначения классов, но не самостоятельное корневое семантическое множество.  
+Предикаты — RDF IRIs; в Direct Semantics они становятся отношениями, если являются object/data properties.  
+«Сущность» в OWL — именованный элемент структурной модели, а «ресурс» в RDF — более общий термин, относящийся к RDF-модели.  [w3](https://www.w3.org/TR/owl2-direct-semantics/)
+
+Может быть для моего концепта (разделение на мир категорий - owl:Class и вещей owl:Thing) подходит OWL DL? Там ведь они взаимоисключающие множества.
+
+### 2
 Да, **OWL 2 DL подходит значительно лучше, чем OWL 2 Full**, если вы хотите строго разделить:
 
 - мир вещей — индивиды;
