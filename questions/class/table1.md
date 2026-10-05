@@ -100,3 +100,88 @@ Generic «the» и Platonic «the» — не одно и то же, хотя и 
 
 Если хочется копнуть глубже, самый красивый узел — «double writing»: *the Form of Beauty* против *beauty itself*. Могу разобрать, почему переводчики «Симпозиума» выбирают то одно, то другое и где это меняет смысл — например, в речи Диотимы о лестнице красоты.
 
+## 2.3
+
+Приведи примеры со столом с "Нулевой артикль" - как про идею стола (универсаль) и приведи в противовес как индивид стола.
+
+Здесь спрятана одна грамматическая тонкость, которую стоит сначала проговорить: в английском слово *table* — исчислимое, поэтому в чистом виде с нулевым артиклем оно почти не встречается (*Tables are furniture* — множественное число, *The table is broken* — определённость). Чтобы получить «стольность» в нулевом артикле, английский язык прибегает к той же операции, что и греческий с его *trapezotēs*: отглагольное/отименное абстрактное существительное — *tableness*, *tablehood*. Именно так переводят реплику из анекдота про Диогена. Смотрите пары.
+
+## Универсал — нулевой артикль
+
+- **Tableness is what every table participates in, but no table can exhaust.** — *Стольность — то, в чём причастен каждый стол, но ни один стол её не исчерпывает.*
+- **Cupness exists whether or not a single cup has ever been made.** — *Чашность существует независимо от того, была ли когда-нибудь сделана хоть одна чашка.*
+- **You cannot scratch tableness, though you can scratch every table.** — *Стольность нельзя поцарапать, хотя каждый стол можно.*
+- **Beauty itself is not in the mirror; tableness is not in the wood.** — *Прекрасное само по себе не в зеркале; стольность не в дереве.*
+
+Обратите внимание на маркеры: вокруг таких слов не работает вопрос «сколько их?» и «какая именно?». К ним нельзя поставить *a*, нельзя указать пальцем — референт не вещь и не род, а свойство. Отсюда и нулевой артикль, как у *freedom*, *justice*, *water*: референт нечётен.
+
+## Индивид — в противовес
+
+- **A table stood in the corner of the room.** — *В углу комнаты стоял стол.* (какой-то один из многих, неопознанный)
+- **I bought a table at the flea market; the legs are crooked.** — *Я купил стол на барахолке; ножки кривые.* (реальный, несовершенный экземпляр — как раз про чувственный мир)
+- **The table in the kitchen needs polishing.** — *Тот стол на кухне нужно полировать.* (конкретный, опознанный из ситуации)
+- **Table 3 is reserved.** — *Стол номер три занят.* (индивид, зафиксированный именем)
+
+## Приём «расщепления» одной фразы
+
+Самый наглядный способ показать разницу — разложить одно высказывание по всем слоям:
+
+> **Tableness** cannot be seen, but **a table** can be seen — and **this table** can be pointed at.
+
+*Стольность нельзя увидеть, но стол можно увидеть — а вот этот стол можно и показать пальцем.*
+
+Или в форме спора Диогена с Платоном:
+
+> **Diogenes:** *I see a table, but I do not see tableness.*
+> **Plato:** *That is because a table is seen by the eyes, while tableness is grasped by the mind.*
+
+И последняя тонкость для полноты картины: между «ноль» и «the» у универсала есть ещё одна ступень — когда о свойстве говорят как о единственной Форме, появляется *the*: *the Form of Beauty* против нулевого *beauty itself*. То есть даже внутри «идеального» слоя английский различает идею (the + имя) и чистое качество (нулевая форма, часто с суффиксом -ness/-hood). Грамматика оказалась дотошнее философии — три слоя вместо двух.
+
+Если хотите, могу собрать из этих примеров мини-диалог целиком на английском — реплики Диогена и Платона, где артикли расставлены так, что спор читается как спор о грамматике.
+
+## 2.4
+
+Вот диалог — построен так, что каждая реплика несёт свой артиклевый слой, а грамматика сама ведёт спор.
+
+## A Dialogue on Tables
+
+*A covered market in Athens. Plato has just finished a lecture on Forms. Diogenes is leaning against a column, eating an olive.*
+
+**Diogenes:** So, Plato — I have heard it all. You say there is *the Form* of the table.
+
+**Plato:** I say more than that, Diogenes. There is **the Table** — one, eternal, perfect. Every carpenter who ever lived has only copied it.
+
+**Diogenes:** Copied it? Then show me the original. *(He waves his hand.)* I see **a table** over there. I see **a bench**. I see **a cup** on the bench. But of your Table — of *tableness* itself — I see nothing at all.
+
+**Plato:** Naturally. **A table** is seen with eyes; **tableness** is grasped with intellect. You brought your eyes. You forgot your mind.
+
+**Diogenes:** My mind is fine. My point is about what *is*. Your *tableness* — where does it live? In what workshop? Show me the wood of it.
+
+**Plato:** It is not *in* the wood. It is not anywhere the way **a table** is somewhere. **A table** can be bought, scratched, burned. **Tableness** cannot be scratched — yet every table is a table *through* it.
+
+**Diogenes:** Then your Table is either everywhere or nowhere. Both answers make it empty talk.
+
+**Plato:** Empty? Consider this, then. You just said: *I see a table.* Very well — **which table**?
+
+**Diogenes:** That one. The crooked one, by the fishmonger.
+
+**Plato:** And how did you know it was *a table* and not **a heap of planks**? Something in your mind told you what a table *is* — before your eyes found that particular one. You saw **tableness** first. You only looked at **the table** afterwards.
+
+**Diogenes:** *(pauses, chews the olive)* …You and your grammar, Plato. First you put **the** in front of everything, and then you are surprised that Ideas turn out to be singular.
+
+**Plato:** Grammar, my friend, was never mine. But notice: you have been arguing all morning with **the** idea of my argument — not with any particular sentence of it. If Ideas were nothing, what have you been quarrelling with?
+
+**Diogenes:** With a Athenian, obviously.
+
+*(He puts down the olive pit and walks off. Plato, to his students:)* You see? **A cynic** is easy to find in any market. **Cynicism**, however — that is harder to scratch.
+
+---
+
+Теперь короткая карта того, как расставлены артикли — по нашей лестнице:
+
+- **the Table / the Form** — идея: единственный прототип, определённый самой своей уникальностью (*«There is the Table — one, eternal, perfect»*).
+- **a table, a bench, a cup** — экземпляры: Диоген вводит в разговор предметы «один из многих», как и положено неопределённому артиклю.
+- **tableness** — универсал в нулевом артикле: без числа, без указания пальцем, только интеллектом (*«tableness is grasped with intellect»*).
+- **a heap of planks** — тонкий удар Платона: он показывает, что различение «стол/не-стол» уже требует универсала.
+- **the table, that one** — индивид, опознанный контекстом: «тот самый кривой».
+- И финальная симметрия: *a cynic* (любой экземпляр) против *Cynicism* (кинизм как свойство, опять нулевой артикль) — Диогену не дают уйти без того же хода, который он применял к Платону.
