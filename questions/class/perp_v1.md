@@ -1737,3 +1737,1576 @@ Book является подкатегорией Publication.
 ```
 
 Именно такая схема наиболее близка к цели O2P: не просто использовать OWL-классы и индивиды, а явно разделить **идеи как формы классификации** и **вещи как элементы моделируемого мира**. RDF даёт графовую основу, OWL 2 DL — логические ограничения, SHACL — проверку структуры, а собственная O2P-семантика — строгое разделение сортов и смысл отношений. [w3](https://www.w3.org/TR/rdf11-concepts/)
+
+## 2
+
+Замечания  
+1  
+o2p:book123 o2p:hasColorValue "red" .  
+o2p:book123 – не верное обозначение, т.к.  o2p не содержит конкретные экземпляры, т.е. экземпляр book123 лучше определять как ex: :book123, где ex:  
+ex: <http://example.com/>   
+2 
+Сформулируй онтологию o2p и покажи пример с Алисой и Боб (все индивиды – экземпляры в ex:), т.е. в примере будет @prefix o2p: <https://github.com/bpmbpm/onto/o2p#> .  
+и
+@prefix ex: <https://example.org/> .
+
+3
+Имена классов \ сущностей и предикатов  
+Если что-то для проекта o2p можно заимствовать из существующих онтологий (или это не онтологии?) owl, rdfs, rdf, Schema.org то заимствуй. Если нет, то приводи аналогичную с добавлением индекса «2» и указывай прототип например,  
+o2pClass2 от owl:Class сходства такие-то, различия такие-то.  
+
+4
+Укажи правило формирования триплета, введи типы триплетов.  
+Например, для триплета определяющее объект в мире идей:  
+<Субъект из мира идей> <предикат из мира идей> <объект или литерал>  
+Литерал – у тебя это ΔData?  
+
+Или триплет  
+<Субъект из мира вещей> <предикат из мира идей> <объект или литерал>
+
+Полагаю, что все предикаты – они из мира идей. 
+
+5 
+Не будем использовать rdf:type 
+Для обозначения объекта (элемента) к одному из двух миров (идей и вещей) будем использовать выделенный предикат.  
+
+---
+
+Принято. Исправляем архитектуру O2P:
+
+- пространство `o2p:` содержит только термины онтологии O2P;
+- конкретные индивиды находятся в пространстве `ex:`;
+- `rdf:type` не используется в утверждениях O2P;
+- принадлежность к миру идей или миру вещей задаётся специальным предикатом O2P;
+- все предикаты являются именами отношений, то есть принадлежат метаязыку или миру идей, но их область применения должна быть явно типизирована.
+
+Ниже — согласованный вариант спецификации O2P.
+
+# 1. Пространства имён
+
+```turtle
+@prefix o2p: <https://github.com/bpmbpm/ontology/o2p#> .
+@prefix ex:  <https://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix schema: <https://schema.org/> .
+```
+
+Я использую именно такой IRI:
+
+```turtle
+https://github.com/bpmbpm/ontology/o2p#
+```
+
+Если фактический GitHub-путь проекта должен быть другим, его нужно изменить единообразно во всех файлах.
+
+## Назначение пространств
+
+| Пространство | Назначение |
+|---|---|
+| `o2p:` | термины онтологии O2P |
+| `ex:` | конкретные индивиды и примерные объекты |
+| `rdf:` | RDF vocabulary |
+| `rdfs:` | RDF Schema vocabulary |
+| `owl:` | OWL vocabulary |
+| `xsd:` | типы литералов |
+| `schema:` | термины Schema.org |
+
+Пример:
+
+```turtle
+o2p:Book
+```
+
+— термин онтологии O2P.
+
+```turtle
+ex:book123
+```
+
+— конкретный индивид, принадлежащий пространству примера.
+
+Таким образом, запись:
+
+```turtle
+o2p:book123
+```
+
+не используется, поскольку O2P не должно содержать конкретную книгу.
+
+# 2. Основные миры O2P
+
+В O2P различаются:
+
+```text
+мир идей
+мир вещей
+мир данных
+```
+
+В терминах множеств:
+
+```text
+ΔIdea  — множество элементов мира идей
+ΔThing — множество элементов мира вещей
+ΔData  — множество значений данных
+```
+
+Предполагается:
+
+```text
+ΔIdea ∩ ΔThing = ∅
+ΔIdea ∩ ΔData = ∅
+ΔThing ∩ ΔData = ∅
+```
+
+Эти обозначения являются собственной семантикой O2P. Они не являются готовыми встроенными доменами OWL 2 DL.
+
+## 2.1. Мир идей
+
+Мир идей содержит:
+
+```text
+категории
+классы
+типы
+концепты
+формы
+образы
+описания свойств
+описания методов
+отношения между идеями
+```
+
+Примеры терминов O2P:
+
+```turtle
+o2p:Book
+o2p:Person
+o2p:Publication
+o2p:Color
+o2p:hasColor
+o2p:hasAuthor
+o2p:open
+```
+
+Это не конкретные книги, люди или значения цвета.
+
+## 2.2. Мир вещей
+
+Мир вещей содержит конкретные объекты предметной области:
+
+```turtle
+ex:alice
+ex:bob
+ex:book123
+ex:library1
+```
+
+Эти ресурсы находятся в пространстве `ex:`, а не в `o2p:`.
+
+## 2.3. Мир данных
+
+Мир данных содержит литеральные значения:
+
+```turtle
+"red"
+"white"
+42
+"1980-01-01"^^xsd:date
+```
+
+Литерал в RDF может быть только объектом RDF-тройки. RDF-тройка состоит из субъекта, предиката и объекта; объект может быть IRI, blank node или литералом. [w3](https://www.w3.org/TR/2013/CR-rdf11-concepts-20131105/)
+
+В O2P следует различать:
+
+```text
+ΔThing — объекты предметной области
+ΔData  — значения данных
+```
+
+Например:
+
+```turtle
+ex:book123 o2p:hasColorValue "red" .
+```
+
+Здесь:
+
+```text
+ex:book123 ∈ ΔThing
+"red" ∈ ΔData
+```
+
+# 3. Главные термины O2P
+
+## 3.1. Идея
+
+**Идея** — элемент мира идей, задающий категорию, форму, тип, образ или иной способ классификации вещей.
+
+Примеры:
+
+```turtle
+o2p:Book
+o2p:Person
+o2p:Publication
+```
+
+В O2P:
+
+```text
+o2p:Book ∈ ΔIdea
+```
+
+## 3.2. Категория
+
+**Категория** — идея, предназначенная для группировки или классификации вещей.
+
+В O2P:
+
+```text
+Category ⊆ ΔIdea
+```
+
+Например:
+
+```turtle
+o2p:Book
+```
+
+может быть категорией вещей-книг.
+
+Важно: «категория» не является встроенной сущностью OWL. В O2P это специальный термин доменной метамодели.
+
+## 3.3. Класс
+
+**Класс** — идея, задающая множество вещей, соответствующих этой идее.
+
+В O2P:
+
+```text
+o2p:Book ∈ ΔIdea
+```
+
+а множество вещей, соответствующих этой идее, обозначается:
+
+```text
+ext(o2p:Book) ⊆ ΔThing
+```
+
+Здесь `ext` означает «множество соответствующих объектов», или экстенсионал идеи.
+
+Например:
+
+```text
+ex:book123 ∈ ext(o2p:Book)
+```
+
+Класс в O2P не должен автоматически отождествляться с множеством вещей. Нужно различать:
+
+```text
+o2p:Book      — идея или класс
+ext(o2p:Book) — множество вещей, соответствующих этой идее
+ex:book123    — конкретная вещь
+```
+
+## 3.4. Индивид
+
+**Индивид** — конкретный именованный элемент мира вещей.
+
+Примеры:
+
+```turtle
+ex:alice
+ex:bob
+ex:book123
+```
+
+В O2P:
+
+```text
+ex:alice ∈ ΔThing
+ex:bob ∈ ΔThing
+ex:book123 ∈ ΔThing
+```
+
+Индивид не является множеством и не является идеей.
+
+## 3.5. Вещь
+
+**Вещь** — элемент мира вещей, независимо от того, имеет ли он имя.
+
+В O2P:
+
+```text
+Thing ⊆ ΔThing
+```
+
+Индивид — именованная вещь:
+
+```text
+ex:alice — именованная вещь
+```
+
+Можно также использовать анонимные вещи, представленные blank node, но для примеров O2P лучше применять IRI из пространства `ex:`.
+
+## 3.6. Объект
+
+Термин «объект» необходимо уточнять.
+
+### Объект мира вещей
+
+```text
+ex:alice
+ex:book123
+```
+
+Это элементы `ΔThing`.
+
+### RDF-объект
+
+В RDF объект — третий компонент RDF-тройки:
+
+```turtle
+ex:alice o2p:knows ex:bob .
+```
+
+Здесь:
+
+```text
+ex:alice — субъект
+o2p:knows — предикат
+ex:bob — RDF-объект
+```
+
+Но `ex:bob` одновременно является вещью мира вещей.
+
+В другом примере:
+
+```turtle
+ex:book123 o2p:hasColorValue "red" .
+```
+
+`"red"` — RDF-объект, но это значение данных, а не вещь `ΔThing`.
+
+Поэтому:
+
+```text
+RDF object ≠ обязательно O2P Thing
+```
+
+## 3.7. Сущность
+
+**Сущность** (`entity`) — именованный элемент модели, идентифицируемый IRI.
+
+В OWL к сущностям относятся:
+
+```text
+Class
+ObjectProperty
+DataProperty
+AnnotationProperty
+NamedIndividual
+Datatype
+```
+
+В O2P термин «сущность» должен применяться осторожно:
+
+| Термин | Значение |
+|---|---|
+| RDF-ресурс | То, что обозначено IRI, blank node или literal |
+| OWL-сущность | Именованный элемент OWL-словаря |
+| O2P-идея | Именованный элемент `ΔIdea` |
+| O2P-вещь | Именованный элемент `ΔThing` |
+| O2P-предикат | Именованный элемент набора отношений |
+| IRI | Имя или идентификатор, а не сам обозначаемый объект |
+
+Например:
+
+```turtle
+o2p:Book
+```
+
+— IRI и имя термина.
+
+```turtle
+ex:book123
+```
+
+— IRI и имя конкретного индивида.
+
+## 3.8. Предикат
+
+В RDF **предикат** — второй компонент тройки и обязательно IRI:
+
+```turtle
+subject predicate object
+```
+
+В O2P предикат — именованное отношение, описанное в пространстве `o2p:`.
+
+Например:
+
+```turtle
+o2p:isInst
+o2p:isSubC
+o2p:hasAuthor
+o2p:hasColorValue
+```
+
+Предикат не является автоматически вещью или идеей. Он относится к третьей категории:
+
+```text
+множество отношений O2P
+```
+
+В расширенной семантике O2P:
+
+```text
+ΔRelation — множество отношений
+```
+
+При этом каждый предикат имеет сигнатуру:
+
+```text
+o2p:isInst   : ΔThing × ΔIdea
+o2p:isSubC   : ΔIdea × ΔIdea
+o2p:hasAuthor: ΔThing × ΔThing
+o2p:hasColorValue: ΔThing × ΔData
+```
+
+## 3.9. Тип
+
+В O2P термин «тип» не должен выражаться универсальным `rdf:type`.
+
+Вместо этого используются конкретные отношения:
+
+```text
+o2p:isInst — соответствие вещи идее
+o2p:isSubC — отношение подкатегории между идеями
+```
+
+Например:
+
+```turtle
+ex:alice o2p:isInst o2p:Person .
+```
+
+Смысл:
+
+```text
+вещь ex:alice соответствует идее o2p:Person
+```
+
+# 4. Отказ от `rdf:type`
+
+В O2P не используем `rdf:type` для утверждений ядра модели.
+
+Вместо:
+
+```turtle
+ex:alice rdf:type o2p:Person .
+```
+
+пишем:
+
+```turtle
+ex:alice o2p:isInst o2p:Person .
+```
+
+Вместо:
+
+```turtle
+o2p:Book rdf:type owl:Class .
+```
+
+в O2P пишем:
+
+```turtle
+o2p:Book o2p:belongsToWorld o2p:IdeaWorld .
+```
+
+Вместо:
+
+```turtle
+ex:alice rdf:type o2p:Thing .
+```
+
+пишем:
+
+```turtle
+ex:alice o2p:belongsToWorld o2p:ThingWorld .
+```
+
+Таким образом, принадлежность к миру выражается не через RDF-тип, а через выделенный O2P-предикат.
+
+# 5. Предикаты принадлежности к мирам
+
+Вводятся два специальных термина миров:
+
+```turtle
+o2p:IdeaWorld
+o2p:ThingWorld
+o2p:DataWorld
+```
+
+И два варианта обозначения принадлежности.
+
+## 5.1. Универсальный предикат миров
+
+```turtle
+o2p:belongsToWorld
+```
+
+Примеры:
+
+```turtle
+o2p:Book o2p:belongsToWorld o2p:IdeaWorld .
+ex:alice o2p:belongsToWorld o2p:ThingWorld .
+"red" o2p:belongsToWorld o2p:DataWorld .
+```
+
+Но последний вариант с литералом требует осторожности: литералы нельзя использовать субъектами RDF-троек. Поэтому принадлежность литералов к `DataWorld` обычно задаётся аксиомой модели, а не отдельной тройкой с литералом в субъекте.
+
+## 5.2. Раздельные предикаты
+
+Более строго:
+
+```turtle
+o2p:isIdea
+o2p:isThing
+o2p:isDataValue
+```
+
+Примеры для именованных ресурсов:
+
+```turtle
+o2p:Book o2p:isIdea o2p:IdeaWorld .
+ex:alice o2p:isThing o2p:ThingWorld .
+```
+
+Однако такое именование несколько неестественно: `isIdea` связывает ресурс с миром, а не просто сообщает его тип.
+
+Предпочтительный вариант:
+
+```turtle
+o2p:belongsToWorld
+```
+
+с объектом-идентификатором мира:
+
+```turtle
+o2p:Book o2p:belongsToWorld o2p:IdeaWorld .
+ex:alice o2p:belongsToWorld o2p:ThingWorld .
+```
+
+# 6. Формальная сигнатура O2P
+
+В O2P вводятся следующие области:
+
+```text
+ΔIdea
+ΔThing
+ΔData
+ΔRelation
+```
+
+Они попарно не пересекаются:
+
+```text
+ΔIdea ∩ ΔThing = ∅
+ΔIdea ∩ ΔData = ∅
+ΔThing ∩ ΔData = ∅
+ΔRelation ∩ ΔIdea = ∅
+ΔRelation ∩ ΔThing = ∅
+ΔRelation ∩ ΔData = ∅
+```
+
+## 6.1. Именованные идеи
+
+```text
+o2p:Book ∈ ΔIdea
+o2p:Person ∈ ΔIdea
+o2p:Publication ∈ ΔIdea
+```
+
+## 6.2. Именованные вещи
+
+```text
+ex:alice ∈ ΔThing
+ex:bob ∈ ΔThing
+ex:book123 ∈ ΔThing
+```
+
+## 6.3. Предикаты
+
+Предикаты принадлежат `ΔRelation`:
+
+```text
+o2p:isInst ∈ ΔRelation
+o2p:isSubC ∈ ΔRelation
+o2p:hasAuthor ∈ ΔRelation
+o2p:hasColorValue ∈ ΔRelation
+```
+
+## 6.4. Литералы
+
+Литералы принадлежат `ΔData`:
+
+```text
+"red" ∈ ΔData
+"white" ∈ ΔData
+42 ∈ ΔData
+```
+
+# 7. Типы триплетов O2P
+
+В RDF синтаксически каждый триплет имеет форму:
+
+```text
+<субъект> <предикат> <объект>
+```
+
+В O2P тип триплета определяется сортами субъекта, предиката и объекта.
+
+Общая схема:
+
+```text
+<субъект из X> <предикат из Relation> <объект из Y>
+```
+
+где:
+
+```text
+X ∈ {Idea, Thing, Data}
+Y ∈ {Idea, Thing, Data}
+```
+
+Но RDF накладывает ограничения:
+
+- субъект — IRI или blank node;
+- предикат — IRI;
+- объект — IRI, blank node или literal.
+
+## 7.1. Idea–Idea: отношения между идеями
+
+```text
+<Idea> <Idea–Idea relation> <Idea>
+```
+
+Пример:
+
+```turtle
+o2p:Book o2p:isSubC o2p:Publication .
+```
+
+Сигнатура:
+
+```text
+o2p:isSubC : ΔIdea × ΔIdea
+```
+
+Другие отношения:
+
+```turtle
+o2p:Book o2p:hasProperty o2p:hasColor .
+o2p:Book o2p:hasMethod o2p:open .
+o2p:Book o2p:isDisjointFrom o2p:Stone .
+```
+
+## 7.2. Idea–Idea с литералом
+
+```text
+<Idea> <Idea–Data relation> <Literal>
+```
+
+Пример:
+
+```turtle
+o2p:Book rdfs:label "Book"@en .
+```
+
+Это уже не логическое отношение между двумя идеями, а аннотация идеи данными.
+
+Сигнатура:
+
+```text
+Idea × Data
+```
+
+## 7.3. Thing–Idea: вещь соответствует идее
+
+```text
+<Thing> <Thing–Idea relation> <Idea>
+```
+
+Пример:
+
+```turtle
+ex:alice o2p:isInst o2p:Person .
+ex:bob o2p:isInst o2p:Person .
+ex:book123 o2p:isInst o2p:Book .
+```
+
+Сигнатура:
+
+```text
+o2p:isInst : ΔThing × ΔIdea
+```
+
+Это основной мост между мирами.
+
+## 7.4. Thing–Thing: отношения между вещами
+
+```text
+<Thing> <Thing–Thing relation> <Thing>
+```
+
+Примеры:
+
+```turtle
+ex:book123 o2p:hasAuthor ex:alice .
+ex:alice o2p:knows ex:bob .
+```
+
+Сигнатуры:
+
+```text
+o2p:hasAuthor : ΔThing × ΔThing
+o2p:knows     : ΔThing × ΔThing
+```
+
+## 7.5. Thing–Data: вещь имеет значение
+
+```text
+<Thing> <Thing–Data relation> <Literal>
+```
+
+Примеры:
+
+```turtle
+ex:book123 o2p:hasColorValue "red" .
+ex:alice o2p:hasAgeValue "30"^^xsd:integer .
+```
+
+Сигнатуры:
+
+```text
+o2p:hasColorValue : ΔThing × ΔData
+o2p:hasAgeValue   : ΔThing × ΔData
+```
+
+## 7.6. Idea–Data: метаданные идеи
+
+```text
+<Idea> <Idea–Data relation> <Literal>
+```
+
+Примеры:
+
+```turtle
+o2p:Book rdfs:label "Book"@en .
+o2p:Book o2p:hasDefinition "A publication..."@en .
+```
+
+## 7.7. Idea–Thing: идея связана с образцом вещи
+
+```text
+<Idea> <Idea–Thing relation> <Thing>
+```
+
+Пример:
+
+```turtle
+o2p:Book o2p:hasPrototype ex:book123 .
+```
+
+Однако это отношение нужно отличать от `o2p:isInst`.
+
+```text
+ex:book123 o2p:isInst o2p:Book .
+o2p:Book o2p:hasPrototype ex:book123 .
+```
+
+Первое утверждает принадлежность вещи категории. Второе утверждает, что конкретная вещь используется как образец идеи.
+
+# 8. Все ли предикаты принадлежат миру идей?
+
+Ваше предположение можно принять с уточнением:
+
+> Все предикаты O2P являются терминами описания отношений, но не все они являются элементами мира идей в том же смысле, что `o2p:Book`.
+
+Нужно различать:
+
+```text
+предикат как IRI
+отношение как семантический объект
+идея отношения
+экземпляр отношения
+```
+
+Например:
+
+```turtle
+o2p:hasAuthor
+```
+
+может быть:
+
+```text
+IRI термина O2P
+идея отношения
+сигнатура Thing–Thing
+```
+
+Но в конкретном триплете:
+
+```turtle
+ex:book123 o2p:hasAuthor ex:alice .
+```
+
+`o2p:hasAuthor` выступает как предикат, а не как объект мира вещей.
+
+Рекомендуемая модель:
+
+```text
+ΔRelation — множество отношений и предикатов
+```
+
+В него входят:
+
+```text
+o2p:isInst
+o2p:isSubC
+o2p:hasAuthor
+o2p:hasColorValue
+```
+
+Далее можно связать отношение с миром идей:
+
+```turtle
+o2p:isInst o2p:describedByIdea o2p:InstanceRelation .
+o2p:isSubC o2p:describedByIdea o2p:SubClassRelation .
+```
+
+Но не следует автоматически утверждать:
+
+```text
+все предикаты ∈ ΔIdea
+```
+
+Более точное утверждение:
+
+```text
+все предикаты имеют имена из словаря O2P;
+их семантические типы задаются в метамодели O2P.
+```
+
+# 9. Заимствование терминов из существующих стандартов
+
+## 9.1. `rdf:subject`, `rdf:predicate`, `rdf:object`
+
+Эти термины можно сохранить только для технического описания RDF-тройки:
+
+```text
+RDF subject
+RDF predicate
+RDF object
+```
+
+Они не определяют миры O2P.
+
+## 9.2. `rdfs:subClassOf`
+
+Можно использовать как внешний RDF/RDFS-аналог, но в ядре O2P лучше использовать:
+
+```turtle
+o2p:isSubC
+```
+
+Причина:
+
+```text
+rdfs:subClassOf
+```
+
+имеет стандартную семантику классов RDF Schema, а O2P хочет отношение между идеями, а не стандартными RDF-классами.
+
+Рекомендуется:
+
+```turtle
+o2p:isSubC rdfs:subPropertyOf rdfs:subClassOf .
+```
+
+Но это возможно только если `o2p:Book` и `o2p:Publication` также интерпретируются как RDFS-классы. В противном случае такое наследование будет семантически неуместным.
+
+## 9.3. `owl:Class`
+
+`owl:Class` можно использовать в адаптерном слое, но не в ядре O2P.
+
+```text
+owl:Class — стандартный OWL-класс
+o2p:Idea — класс элементов мира идей O2P
+```
+
+Предлагаю:
+
+```text
+o2p:Idea — основной термин O2P
+```
+
+а `owl:Class` оставить для внешнего соответствия.
+
+## 9.4. `owl:ObjectProperty`
+
+В O2P нужен более точный набор аналогов:
+
+```text
+o2p:IdeaIdeaProperty
+o2p:ThingIdeaProperty
+o2p:ThingThingProperty
+o2p:ThingDataProperty
+o2p:IdeaDataProperty
+```
+
+Это не прямые замены `owl:ObjectProperty`, а специализированные типы отношений.
+
+| O2P-термин | Прототип | Сходство | Отличие |
+|---|---|---|---|
+| `o2p:IdeaIdeaProperty` | `owl:ObjectProperty` | бинарное отношение | концы только в `ΔIdea` |
+| `o2p:ThingIdeaProperty` | `owl:ObjectProperty` | связь двух ресурсов | субъект Thing, объект Idea |
+| `o2p:ThingThingProperty` | `owl:ObjectProperty` | связь вещей | оба конца в `ΔThing` |
+| `o2p:ThingDataProperty` | `owl:DatatypeProperty` | связь с literal | субъект Thing |
+| `o2p:IdeaDataProperty` | `owl:DatatypeProperty` | связь с literal | субъект Idea |
+
+## 9.5. Schema.org
+
+Schema.org можно использовать как источник прикладных названий:
+
+```turtle
+schema:Person
+schema:Book
+schema:author
+schema:name
+schema:color
+```
+
+Но Schema.org не задаёт философское разделение `ΔIdea` и `ΔThing`. Его модель использует типы и свойства для структурированных данных; домены и диапазоны указывают, для каких типов свойства предназначены. [schema](https://schema.org/docs/datamodel.html)
+
+Поэтому возможны два слоя:
+
+```turtle
+o2p:Person owl:equivalentClass schema:Person .
+o2p:Book owl:equivalentClass schema:Book .
+o2p:hasAuthor owl:equivalentProperty schema:author .
+```
+
+Но такие аксиомы будут корректны только в адаптерном слое и только после решения вопроса, как Schema.org-типы отображаются в O2P-идеи.
+
+# 10. Онтология O2P
+
+Ниже — первоначальная онтология O2P без `rdf:type` в утверждениях ядра.
+
+Важно: Turtle сам по себе требует синтаксически корректных RDF-троек. Поэтому для описания того, что `o2p:Idea` является термином метамодели, можно использовать `owl:Class` только в технической декларативной части. В ядре предметных утверждений `rdf:type` не используется.
+
+```turtle
+@prefix o2p: <https://github.com/bpmbpm/ontology/o2p#> .
+@prefix ex:  <https://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix schema: <https://schema.org/> .
+
+#################################################################
+# Worlds
+#################################################################
+
+o2p:IdeaWorld
+    rdfs:label "Мир идей"@ru .
+
+o2p:ThingWorld
+    rdfs:label "Мир вещей"@ru .
+
+o2p:DataWorld
+    rdfs:label "Мир данных"@ru .
+
+#################################################################
+# O2P meta-terms
+#################################################################
+
+o2p:Idea
+    o2p:belongsToWorld o2p:IdeaWorld ;
+    rdfs:label "Идея"@ru .
+
+o2p:Thing
+    o2p:belongsToWorld o2p:IdeaWorld ;
+    rdfs:label "Вещь"@ru .
+
+o2p:DataValue
+    o2p:belongsToWorld o2p:IdeaWorld ;
+    rdfs:label "Значение данных"@ru .
+
+o2p:Relation
+    o2p:belongsToWorld o2p:IdeaWorld ;
+    rdfs:label "Отношение"@ru .
+
+#################################################################
+# World-membership predicates
+#################################################################
+
+o2p:belongsToWorld
+    o2p:domain o2p:Idea ;
+    o2p:range o2p:World ;
+    rdfs:label "принадлежит миру"@ru .
+
+o2p:World
+    rdfs:label "Мир O2P"@ru .
+
+o2p:isInst
+    o2p:sourceSort o2p:Thing ;
+    o2p:targetSort o2p:Idea ;
+    rdfs:label "является экземпляром идеи"@ru .
+
+o2p:isSubC
+    o2p:sourceSort o2p:Idea ;
+    o2p:targetSort o2p:Idea ;
+    rdfs:label "является подклассом идеи"@ru .
+
+#################################################################
+# Idea–Idea relations
+#################################################################
+
+o2p:hasProperty
+    o2p:sourceSort o2p:Idea ;
+    o2p:targetSort o2p:Idea ;
+    rdfs:label "имеет описание свойства"@ru .
+
+o2p:hasMethod
+    o2p:sourceSort o2p:Idea ;
+    o2p:targetSort o2p:Idea ;
+    rdfs:label "имеет описание метода"@ru .
+
+o2p:isDisjointFrom
+    o2p:sourceSort o2p:Idea ;
+    o2p:targetSort o2p:Idea ;
+    rdfs:label "не пересекается с"@ru .
+
+#################################################################
+# Thing–Thing relations
+#################################################################
+
+o2p:hasAuthor
+    o2p:sourceSort o2p:Thing ;
+    o2p:targetSort o2p:Thing ;
+    rdfs:label "имеет автора"@ru .
+
+o2p:knows
+    o2p:sourceSort o2p:Thing ;
+    o2p:targetSort o2p:Thing ;
+    rdfs:label "знает"@ru .
+
+#################################################################
+# Thing–Data relations
+#################################################################
+
+o2p:hasColorValue
+    o2p:sourceSort o2p:Thing ;
+    o2p:targetSort o2p:DataValue ;
+    rdfs:label "имеет значение цвета"@ru .
+
+o2p:hasAgeValue
+    o2p:sourceSort o2p:Thing ;
+    o2p:targetSort o2p:DataValue ;
+    rdfs:label "имеет значение возраста"@ru .
+
+#################################################################
+# Example ideas
+#################################################################
+
+o2p:Person
+    o2p:belongsToWorld o2p:IdeaWorld .
+
+o2p:Book
+    o2p:belongsToWorld o2p:IdeaWorld .
+
+o2p:Publication
+    o2p:belongsToWorld o2p:IdeaWorld .
+
+o2p:ColorProperty
+    o2p:belongsToWorld o2p:IdeaWorld .
+
+o2p:RedColorValue
+    o2p:belongsToWorld o2p:IdeaWorld .
+
+#################################################################
+# Idea–Idea assertions
+#################################################################
+
+o2p:Book
+    o2p:isSubC o2p:Publication ;
+    o2p:hasProperty o2p:ColorProperty .
+
+o2p:ColorProperty
+    o2p:isSubC o2p:PropertyIdea .
+
+o2p:PropertyIdea
+    o2p:belongsToWorld o2p:IdeaWorld .
+```
+
+В этом варианте я сознательно не использую:
+
+```turtle
+o2p:Book rdf:type owl:Class .
+```
+
+и:
+
+```turtle
+ex:alice rdf:type o2p:Thing .
+```
+
+Ядро O2P использует отношения:
+
+```turtle
+o2p:belongsToWorld
+o2p:isInst
+o2p:isSubC
+```
+
+# 11. Пример с Алисой и Бобом
+
+Ниже все конкретные индивиды находятся в `ex:`.
+
+```turtle
+@prefix o2p: <https://github.com/bpmbpm/ontology/o2p#> .
+@prefix ex:  <https://example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+#################################################################
+# Ideas
+#################################################################
+
+o2p:Person
+    o2p:belongsToWorld o2p:IdeaWorld .
+
+o2p:Book
+    o2p:belongsToWorld o2p:IdeaWorld .
+
+o2p:Publication
+    o2p:belongsToWorld o2p:IdeaWorld .
+
+o2p:Book
+    o2p:isSubC o2p:Publication .
+
+#################################################################
+# Things
+#################################################################
+
+ex:alice
+    o2p:belongsToWorld o2p:ThingWorld ;
+    o2p:isInst o2p:Person ;
+    o2p:knows ex:bob .
+
+ex:bob
+    o2p:belongsToWorld o2p:ThingWorld ;
+    o2p:isInst o2p:Person ;
+    o2p:knows ex:alice .
+
+ex:book123
+    o2p:belongsToWorld o2p:ThingWorld ;
+    o2p:isInst o2p:Book ;
+    o2p:hasAuthor ex:alice ;
+    o2p:hasColorValue "red" .
+```
+
+Чтение:
+
+```text
+o2p:Person — идея человека.
+o2p:Book — идея книги.
+o2p:Publication — идея публикации.
+
+ex:alice — конкретная вещь мира вещей.
+ex:bob — конкретная вещь мира вещей.
+ex:book123 — конкретная вещь мира вещей.
+
+ex:alice является экземпляром идеи o2p:Person.
+ex:bob является экземпляром идеи o2p:Person.
+ex:book123 является экземпляром идеи o2p:Book.
+
+o2p:Book является подкатегорией o2p:Publication.
+ex:book123 имеет автора ex:alice.
+ex:book123 имеет значение цвета "red".
+```
+
+# 12. Правила формирования триплетов
+
+## Правило 1. Субъект
+
+Субъект O2P-тройки должен быть:
+
+```text
+IRI идеи
+IRI вещи
+blank node
+```
+
+Литерал не может быть субъектом RDF-тройки.
+
+## Правило 2. Предикат
+
+Предикат должен быть IRI:
+
+```text
+o2p:isInst
+o2p:isSubC
+o2p:hasAuthor
+o2p:hasColorValue
+```
+
+Литерал не может быть предикатом.
+
+## Правило 3. Объект
+
+Объект может быть:
+
+```text
+IRI идеи
+IRI вещи
+IRI мира
+blank node
+литерал
+```
+
+## Правило 4. Сигнатура
+
+Каждый предикат должен иметь сигнатуру:
+
+```text
+domain × range
+```
+
+Например:
+
+```text
+o2p:isInst : Thing × Idea
+o2p:isSubC : Idea × Idea
+o2p:hasAuthor : Thing × Thing
+o2p:hasColorValue : Thing × Data
+```
+
+## 12.1. Таблица типов триплетов
+
+| Тип триплета | Форма | Пример |
+|---|---|---|
+| Idea–Idea | `<Idea> <IdeaRelation> <Idea>` | `o2p:Book o2p:isSubC o2p:Publication` |
+| Idea–Data | `<Idea> <DataRelation> <Literal>` | `o2p:Book rdfs:label "Book"` |
+| Thing–Idea | `<Thing> <ThingIdeaRelation> <Idea>` | `ex:alice o2p:isInst o2p:Person` |
+| Thing–Thing | `<Thing> <ThingRelation> <Thing>` | `ex:book123 o2p:hasAuthor ex:alice` |
+| Thing–Data | `<Thing> <DataRelation> <Literal>` | `ex:book123 o2p:hasColorValue "red"` |
+| Idea–Thing | `<Idea> <IdeaThingRelation> <Thing>` | `o2p:Book o2p:hasPrototype ex:book123` |
+| World declaration | `<Term> <WorldRelation> <World>` | `o2p:Book o2p:belongsToWorld o2p:IdeaWorld` |
+
+## 12.2. Недопустимые триплеты
+
+```turtle
+ex:alice o2p:isSubC o2p:Person .
+```
+
+Недопустимо, потому что `o2p:isSubC` имеет тип:
+
+```text
+Idea × Idea
+```
+
+а `ex:alice` является вещью.
+
+```turtle
+o2p:Book o2p:isInst ex:book123 .
+```
+
+Недопустимо, потому что `o2p:isInst` имеет тип:
+
+```text
+Thing × Idea
+```
+
+а здесь порядок обратный.
+
+```turtle
+ex:book123 o2p:hasAuthor "Alice" .
+```
+
+Недопустимо, если `o2p:hasAuthor` имеет сигнатуру:
+
+```text
+Thing × Thing
+```
+
+В таком случае нужно использовать:
+
+```turtle
+ex:book123 o2p:hasAuthor ex:alice .
+```
+
+# 13. Отношение `o2p:isInst`
+
+В O2P:
+
+```turtle
+ex:alice o2p:isInst o2p:Person .
+```
+
+означает:
+
+```text
+ex:alice ∈ ΔThing
+o2p:Person ∈ ΔIdea
+ex:alice ∈ ext(o2p:Person)
+```
+
+Не следует автоматически читать это как стандартное OWL:
+
+```text
+ex:alice rdf:type o2p:Person
+```
+
+Хотя по смыслу эти утверждения близки, `o2p:isInst` специально отражает двухсортную семантику O2P.
+
+## 13.1. Наследование принадлежности
+
+Если:
+
+```turtle
+o2p:Book o2p:isSubC o2p:Publication .
+ex:book123 o2p:isInst o2p:Book .
+```
+
+то O2P-правило даёт:
+
+```turtle
+ex:book123 o2p:isInst o2p:Publication .
+```
+
+Формально:
+
+```text
+isSubC(A, B) ∧ isInst(x, A)
+→ isInst(x, B)
+```
+
+## 13.2. Отсутствие обратного вывода
+
+Из:
+
+```turtle
+ex:book123 o2p:isInst o2p:Publication .
+```
+
+не следует:
+
+```turtle
+ex:book123 o2p:isInst o2p:Book .
+```
+
+Если `Book` является подклассом `Publication`, направление только такое:
+
+```text
+Book → Publication
+```
+
+# 14. Отношение `o2p:isSubC`
+
+```turtle
+o2p:Book o2p:isSubC o2p:Publication .
+```
+
+Оба ресурса принадлежат миру идей:
+
+```text
+o2p:Book ∈ ΔIdea
+o2p:Publication ∈ ΔIdea
+```
+
+Отношение наследует свойства стандартного `rdfs:subClassOf` только концептуально.
+
+В O2P можно определить:
+
+```text
+o2p:isSubC rdfs:subPropertyOf rdfs:subClassOf .
+```
+
+Но делать это следует только в адаптерном OWL/RDFS-слое, поскольку стандартная семантика `rdfs:subClassOf` предполагает обычные RDF-классы, а не собственные двухсортные идеи O2P.
+
+# 15. Что заимствовать, а что переименовать
+
+| O2P-термин | Прототип | Решение |
+|---|---|---|
+| `o2p:Idea` | `owl:Class` | Не считать прямым эквивалентом; использовать как элемент мира идей |
+| `o2p:Thing` | `owl:Thing` | Не считать эквивалентом; `owl:Thing` шире и относится к OWL object domain |
+| `o2p:isInst` | `rdf:type` | Специализированный аналог Thing–Idea |
+| `o2p:isSubC` | `rdfs:subClassOf` | Специализированный аналог Idea–Idea |
+| `o2p:hasAuthor` | `schema:author` | Можно использовать как O2P-отношение Thing–Thing |
+| `o2p:hasColorValue` | `schema:color` | Можно использовать как O2P-отношение Thing–Data |
+| `o2p:hasProperty` | отсутствует точный аналог | Собственный термин O2P |
+| `o2p:hasMethod` | отсутствует в OWL/RDFS | Собственный термин O2P |
+| `o2p:belongsToWorld` | отсутствует | Собственный фундаментальный термин O2P |
+| `o2p:IdeaWorld` | отсутствует | Собственный термин O2P |
+| `o2p:ThingWorld` | отсутствует | Собственный термин O2P |
+
+## 15.1. `o2p:Idea` не является `owl:Class`
+
+Сходство:
+
+```text
+оба задают категорию или тип
+оба могут иметь иерархию
+оба могут быть связаны с экземплярами
+```
+
+Различие:
+
+```text
+owl:Class — стандартный OWL-класс, интерпретируемый как множество объектов OWL domain
+o2p:Idea — элемент мира идей O2P
+```
+
+В O2P:
+
+```text
+o2p:Idea ∈ ΔIdea
+```
+
+а соответствующее множество вещей:
+
+```text
+ext(o2p:Idea) ⊆ ΔThing
+```
+
+## 15.2. `o2p:Thing` не является `owl:Thing`
+
+Сходство:
+
+```text
+оба связаны с объектами
+```
+
+Различие:
+
+```text
+owl:Thing — универсальный класс всех объектов OWL object domain
+o2p:Thing — концепт или сорт вещей мира O2P
+```
+
+В O2P:
+
+```text
+o2p:Thing ∈ ΔIdea
+```
+
+потому что это имя, описывающее мир вещей.
+
+А сами вещи:
+
+```text
+ex:alice ∈ ΔThing
+ex:bob ∈ ΔThing
+```
+
+# 16. Адаптер к OWL 2 DL
+
+O2P может иметь отдельный адаптерный слой:
+
+```turtle
+@prefix o2p: <https://github.com/bpmbpm/ontology/o2p#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#> .
+
+o2p:Person owl:equivalentClass o2p:PersonClass2 .
+o2p:Book owl:equivalentClass o2p:BookClass2 .
+
+o2p:isSubC rdfs:subPropertyOf rdfs:subClassOf .
+```
+
+Однако для полного соответствия O2P это потребует преобразования:
+
+```text
+o2p:isInst → rdf:type
+o2p:isSubC → rdfs:subClassOf
+o2p:hasAuthor → owl:ObjectProperty
+o2p:hasColorValue → owl:DatatypeProperty
+```
+
+Такой адаптер полезен для стандартных OWL reasoner, но сам O2P-граф должен оставаться двухсортным.
+
+# 17. Итоговая минимальная модель
+
+```turtle
+@prefix o2p: <https://github.com/bpmbpm/ontology/o2p#> .
+@prefix ex:  <https://example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Идеи
+o2p:Person
+    o2p:belongsToWorld o2p:IdeaWorld .
+
+o2p:Book
+    o2p:belongsToWorld o2p:IdeaWorld ;
+    o2p:isSubC o2p:Publication .
+
+o2p:Publication
+    o2p:belongsToWorld o2p:IdeaWorld .
+
+# Вещи
+ex:alice
+    o2p:belongsToWorld o2p:ThingWorld ;
+    o2p:isInst o2p:Person ;
+    o2p:knows ex:bob .
+
+ex:bob
+    o2p:belongsToWorld o2p:ThingWorld ;
+    o2p:isInst o2p:Person ;
+    o2p:knows ex:alice .
+
+ex:book123
+    o2p:belongsToWorld o2p:ThingWorld ;
+    o2p:isInst o2p:Book ;
+    o2p:hasAuthor ex:alice ;
+    o2p:hasColorValue "red" .
+```
+
+В этой модели:
+
+```text
+o2p:Person, o2p:Book, o2p:Publication — элементы o2p:.
+
+ex:alice, ex:bob, ex:book123 — конкретные индивиды ex:.
+
+o2p:isInst — отношение Thing–Idea.
+
+o2p:isSubC — отношение Idea–Idea.
+
+o2p:hasAuthor — отношение Thing–Thing.
+
+o2p:hasColorValue — отношение Thing–Data.
+
+rdf:type — не используется в ядре O2P.
+```
+
+Главное исправление по сравнению с предыдущей версией:
+
+```turtle
+ex:book123 o2p:hasColorValue "red" .
+```
+
+а не:
+
+```turtle
+o2p:book123 o2p:hasColorValue "red" .
+```
+
+`o2p:` содержит термины и отношения O2P. `ex:` содержит конкретные экземпляры и объекты примера. RDF предоставляет только синтаксис триплетов, а O2P добавляет сортировку миров, типы отношений и собственную двухсортную семантику. [w3](https://www.w3.org/TR/2013/CR-rdf11-concepts-20131105/)
+
