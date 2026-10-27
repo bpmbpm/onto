@@ -1,6 +1,7 @@
 ## 1
 ## also
 - https://github.com/bpmbpm/doc/blob/main/LD2/OWL/class/platon1.md
+- https://github.com/bpmbpm/doc/tree/main/LD2/ontology/upper
 
 Платон объяснял идею стола как вечную, неизменную и совершенную сущность («стольность»), которая существует в мире идей — и на которую ориентированы все конкретные столы в чувственном мире.
 
